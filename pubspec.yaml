@@ -13,7 +13,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.8
+  flutter_tts: ^3.6.3 # Text-to-Speech functionality
+  speech_to_text: 7.0.0 # Voice Input functionality
+  
 
 dev_dependencies:
   flutter_test:

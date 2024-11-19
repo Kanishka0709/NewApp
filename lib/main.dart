@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async'; // For Timer functionality
+import 'package:flutter_tts/flutter_tts.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 void main() {
   runApp(const RailwayNavigationApp());
@@ -27,7 +29,7 @@ class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  _SplashScreenState createState() => _SplashScreenState();
+  State<SplashScreen> createState() => _SplashScreenState();
 }
 
 class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
@@ -80,7 +82,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                 child: const Text(
                   'PRAVAAH',
                   style: TextStyle(
-                    color: Color.fromARGB(255, 70, 3, 255),
+                    color: Color.fromARGB(255, 0, 20, 199),
                     fontSize: 36,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'CourierPrime',
@@ -91,7 +93,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
               const Text(
                 'Welcome to Railway Navigator',
                 style: TextStyle(
-                  color: Color.fromARGB(255, 70, 3, 255),
+                  color: Color.fromARGB(255, 0, 20, 199),
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   fontFamily: 'CourierPrime',
@@ -115,7 +117,7 @@ class NavigationMainPage extends StatefulWidget {
   const NavigationMainPage({super.key});
 
   @override
-  _NavigationMainPageState createState() => _NavigationMainPageState();
+  State<NavigationMainPage> createState() => _NavigationMainPageState();
 }
 
 class _NavigationMainPageState extends State<NavigationMainPage> {
@@ -158,7 +160,7 @@ class _NavigationMainPageState extends State<NavigationMainPage> {
               ),
               ListTile(
                 leading: const Icon(Icons.chat, color: Color.fromARGB(255, 0, 20, 199)),
-                title: const Text('Chatbot', style: TextStyle(color: Colors.deepPurpleAccent)),
+                title: const Text('Chatbot', style: TextStyle(color: Color.fromARGB(255, 0, 20, 199))),
                 onTap: () {
                   Navigator.pop(context); // Close the drawer
                   Navigator.push(
@@ -237,7 +239,7 @@ class ChatbotPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Chatbot", style: TextStyle(fontFamily: 'CourierPrime')),
-        backgroundColor:  const Color.fromARGB(255, 70, 3, 255),
+        backgroundColor: Color.fromARGB(255, 0, 20, 199),
       ),
       body: const Center(
         child: Text(
@@ -257,7 +259,7 @@ class EmergencyContactsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Emergency Contacts", style: TextStyle(fontFamily: 'CourierPrime')),
-        backgroundColor: const Color.fromARGB(255, 70, 3, 255),
+        backgroundColor:  Color.fromARGB(255, 0, 20, 199),
       ),
       body: const Center(
         child: Text(
@@ -278,7 +280,7 @@ class EmergencyEmailsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Emergency Emails", style: TextStyle(fontFamily: 'CourierPrime')),
-        backgroundColor: const Color.fromARGB(255, 70, 3, 255),
+        backgroundColor: Color.fromARGB(255, 0, 20, 199),
       ),
       body: const Center(
         child: Text(
@@ -294,21 +296,93 @@ class EmergencyEmailsPage extends StatelessWidget {
 
 // Welcome Page
 // Welcome Page
-class WelcomePage extends StatelessWidget {
+class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});
+
+  @override
+  State<WelcomePage> createState() => _WelcomePageState();
+}
+
+class _WelcomePageState extends State<WelcomePage> {
+  final FlutterTts _flutterTts = FlutterTts();
+  final stt.SpeechToText _speechToText = stt.SpeechToText();
+  bool _isListening = false;
+  String _searchText = '';
+  String _selectedLanguage = 'English';
+
+  final List<String> _languages = [
+    'English',
+    'हिंदी (Hindi)',
+    'मराठी (Marathi)',
+    'தமிழ் (Tamil)',
+    'తెలుగు (Telugu)',
+    'বাংলা (Bengali)',
+    'ગુજરાતી (Gujarati)',
+    'ਪੰਜਾਬੀ (Punjabi)',
+    'ಕನ್ನಡ (Kannada)',
+    'മലയാളം (Malayalam)',
+    'ଓଡ଼ିଆ (Odia)',
+  ];
+
+  void _readAloud(String text) async {
+    await _flutterTts.setLanguage(_selectedLanguage == 'English' ? 'en-US' : 'hi-IN'); // Example: Hindi for testing
+    await _flutterTts.speak(text);
+  }
+
+  void _startListening() async {
+    if (!_isListening && await _speechToText.initialize()) {
+      setState(() => _isListening = true);
+      _speechToText.listen(onResult: (result) {
+        setState(() => _searchText = result.recognizedWords);
+      });
+    }
+  }
+
+  void _stopListening() {
+    setState(() => _isListening = false);
+    _speechToText.stop();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // Set background color to white
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text(
+          "Welcome",
+          style: TextStyle(fontFamily: 'CourierPrime'),
+        ),
+        actions: [
+          // Language Change
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.language, color: Colors.white),
+            onSelected: (value) {
+              setState(() => _selectedLanguage = value);
+            },
+            itemBuilder: (context) {
+              return _languages
+                  .map((lang) => PopupMenuItem(value: lang, child: Text(lang)))
+                  .toList();
+            },
+          ),
+          const SizedBox(width: 10),
+          // Read Aloud Option
+          IconButton(
+            icon: const Icon(Icons.volume_up, color: Colors.white),
+            onPressed: () {
+              _readAloud("Welcome to Railway Navigation App. Select your station to start.");
+            },
+          ),
+        ],
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text(
-              '',
+              'Welcome',
               style: TextStyle(
-                color: Color.fromARGB(255, 70, 3, 255),
+                color: Color.fromARGB(255, 0, 20, 199),
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
                 fontFamily: 'CourierPrime',
@@ -319,7 +393,7 @@ class WelcomePage extends StatelessWidget {
             const Text(
               'नमस्ते',
               style: TextStyle(
-                color: Color.fromARGB(255, 70, 3, 255),
+                color: Color.fromARGB(255, 0, 20, 199),
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
                 fontFamily: 'CourierPrime',
@@ -327,22 +401,41 @@ class WelcomePage extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
-            // Updated Select Station input field
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 40.0),
-              child: TextField(
-                decoration: InputDecoration(
-                  labelText: 'Select Station',
-                  labelStyle: TextStyle(color: Color.fromARGB(255, 70, 3, 255)),
-                  prefixIcon: Icon(Icons.train, color: Color.fromARGB(255, 70, 3, 255)),
-                  suffixIcon: Icon(Icons.search, color: Color.fromARGB(255, 70, 3, 255)),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Color.fromARGB(255, 70, 3, 255)),
+            // Search Field with Voice Input
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: TextEditingController(text: _searchText),
+                      decoration: const InputDecoration(
+                        labelText: 'Select Station',
+                        labelStyle:
+                            TextStyle(color: Color.fromARGB(255, 0, 20, 199)),
+                        prefixIcon: Icon(Icons.train,
+                            color: Color.fromARGB(255, 0, 20, 199)),
+                        suffixIcon: Icon(Icons.search,
+                            color: Color.fromARGB(255, 0, 20, 199)),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                              color: Color.fromARGB(255, 0, 20, 199)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                              color: Color.fromARGB(255, 0, 20, 199)),
+                        ),
+                      ),
+                    ),
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Color.fromARGB(255, 70, 3, 255)),
+                  IconButton(
+                    icon: Icon(
+                      _isListening ? Icons.mic : Icons.mic_none,
+                      color: Color.fromARGB(255, 0, 20, 199),
+                    ),
+                    onPressed: _isListening ? _stopListening : _startListening,
                   ),
-                ),
+                ],
               ),
             ),
             const SizedBox(height: 30),
@@ -351,10 +444,12 @@ class WelcomePage extends StatelessWidget {
                 backgroundColor: const Color.fromARGB(255, 70, 3, 255),
                 padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
+                  borderRadius: BorderRadius.circular(20),
+                ),
               ),
               onPressed: () {
-                // Implement start navigation functionality
+                // Start navigation functionality here
+                _readAloud("Navigation Started");
               },
               child: const Text(
                 'Start Navigation',
@@ -371,13 +466,12 @@ class WelcomePage extends StatelessWidget {
   }
 }
 
-
 // Search Page with Clickable Options
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
 
   @override
-  _SearchPageState createState() => _SearchPageState();
+  State<SearchPage> createState() => _SearchPageState();
 }
 
 class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateMixin {
@@ -520,7 +614,7 @@ class SearchResultPage extends StatelessWidget {
 //       backgroundColor: Colors.white,
 //       appBar: AppBar(
 //         title: Text("$label Results", style: const TextStyle(fontFamily: 'CourierPrime')),
-//         backgroundColor: Color.fromARGB(255, 70, 3, 255),
+//         backgroundcolor: Color.fromARGB(255, 0, 20, 199),
 //       ),
 //       body: Center(
 //         child: Text(
@@ -622,7 +716,7 @@ class LoginPage extends StatelessWidget {
               const Text(
                 'Sign in to your account',
                 style: TextStyle(
-                  color: Color.fromARGB(255, 70, 3, 255),
+                  color: Color.fromARGB(255, 0, 20, 199),
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   fontFamily: 'CourierPrime',
@@ -632,14 +726,14 @@ class LoginPage extends StatelessWidget {
               const TextField(
                 decoration: InputDecoration(
                   labelText: 'Email Address',
-                  prefixIcon: Icon(Icons.email, color: Color.fromARGB(255, 70, 3, 255)),
+                  prefixIcon: Icon(Icons.email, color: Color.fromARGB(255, 0, 20, 199)),
                 ),
               ),
               const SizedBox(height: 15),
               const TextField(
                 decoration: InputDecoration(
                   labelText: 'Password',
-                  prefixIcon: Icon(Icons.lock, color: Color.fromARGB(255, 70, 3, 255)),
+                  prefixIcon: Icon(Icons.lock, color: Color.fromARGB(255, 0, 20, 199)),
                 ),
                 obscureText: true,
               ),
@@ -685,28 +779,28 @@ class SignUpPage extends StatelessWidget {
               const TextField(
                 decoration: InputDecoration(
                   labelText: 'Name',
-                  prefixIcon: Icon(Icons.person, color: Color.fromARGB(255, 70, 3, 255)),
+                  prefixIcon: Icon(Icons.person, color: Color.fromARGB(255, 0, 20, 199)),
                 ),
               ),
               const SizedBox(height: 10),
               const TextField(
                 decoration: InputDecoration(
                   labelText: 'Email Address',
-                  prefixIcon: Icon(Icons.email, color: Color.fromARGB(255, 70, 3, 255)),
+                  prefixIcon: Icon(Icons.email, color: Color.fromARGB(255, 0, 20, 199)),
                 ),
               ),
               const SizedBox(height: 10),
               const TextField(
                 decoration: InputDecoration(
                   labelText: 'Mobile Number',
-                  prefixIcon: Icon(Icons.phone, color: Color.fromARGB(255, 70, 3, 255)),
+                  prefixIcon: Icon(Icons.phone, color: Color.fromARGB(255, 0, 20, 199)),
                 ),
               ),
               const SizedBox(height: 10),
               const TextField(
                 decoration: InputDecoration(
                   labelText: 'Password',
-                  prefixIcon: Icon(Icons.lock, color: Color.fromARGB(255, 70, 3, 255)),
+                  prefixIcon: Icon(Icons.lock, color: Color.fromARGB(255, 0, 20, 199)),
                 ),
                 obscureText: true,
               ),
@@ -714,7 +808,7 @@ class SignUpPage extends StatelessWidget {
               const TextField(
                 decoration: InputDecoration(
                   labelText: 'Confirm Password',
-                  prefixIcon: Icon(Icons.lock, color: Color.fromARGB(255, 70, 3, 255)),
+                  prefixIcon: Icon(Icons.lock, color: Color.fromARGB(255, 0, 20, 199)),
                 ),
                 obscureText: true,
               ),
