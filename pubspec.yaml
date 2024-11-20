@@ -16,6 +16,7 @@ dependencies:
   flutter_tts: ^3.6.3 # Text-to-Speech functionality
   speech_to_text: 7.0.0 # Voice Input functionality
   flutter_cube: 0.1.1
+  shared_preferences: ^2.1.1
 
 dev_dependencies:
   flutter_test:
