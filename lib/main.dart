@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async'; // For Timer functionality
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:flutter_cube/flutter_cube.dart';
 
 void main() {
   runApp(const RailwayNavigationApp());
@@ -353,7 +354,6 @@ class _WelcomePageState extends State<WelcomePage> {
           style: TextStyle(fontFamily: 'CourierPrime'),
         ),
         actions: [
-          // Language Change
           PopupMenuButton<String>(
             icon: const Icon(Icons.language, color: Colors.white),
             onSelected: (value) {
@@ -366,7 +366,6 @@ class _WelcomePageState extends State<WelcomePage> {
             },
           ),
           const SizedBox(width: 10),
-          // Read Aloud Option
           IconButton(
             icon: const Icon(Icons.volume_up, color: Colors.white),
             onPressed: () {
@@ -401,7 +400,6 @@ class _WelcomePageState extends State<WelcomePage> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
-            // Search Field with Voice Input
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 40.0),
               child: Row(
@@ -411,19 +409,14 @@ class _WelcomePageState extends State<WelcomePage> {
                       controller: TextEditingController(text: _searchText),
                       decoration: const InputDecoration(
                         labelText: 'Select Station',
-                        labelStyle:
-                            TextStyle(color: Color.fromARGB(255, 0, 20, 199)),
-                        prefixIcon: Icon(Icons.train,
-                            color: Color.fromARGB(255, 0, 20, 199)),
-                        suffixIcon: Icon(Icons.search,
-                            color: Color.fromARGB(255, 0, 20, 199)),
+                        labelStyle: TextStyle(color: Color.fromARGB(255, 0, 20, 199)),
+                        prefixIcon: Icon(Icons.train, color: Color.fromARGB(255, 0, 20, 199)),
+                        suffixIcon: Icon(Icons.search, color: Color.fromARGB(255, 0, 20, 199)),
                         enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                              color: Color.fromARGB(255, 0, 20, 199)),
+                          borderSide: BorderSide(color: Color.fromARGB(255, 0, 20, 199)),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                              color: Color.fromARGB(255, 0, 20, 199)),
+                          borderSide: BorderSide(color: Color.fromARGB(255, 0, 20, 199)),
                         ),
                       ),
                     ),
@@ -448,7 +441,6 @@ class _WelcomePageState extends State<WelcomePage> {
                 ),
               ),
               onPressed: () {
-                // Start navigation functionality here
                 _readAloud("Navigation Started");
               },
               child: const Text(
@@ -459,7 +451,51 @@ class _WelcomePageState extends State<WelcomePage> {
                 ),
               ),
             ),
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 70, 3, 255),
+                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+              icon: const Icon(Icons.view_in_ar),
+              label: const Text(
+                'View 3D Model',
+                style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'CourierPrime'),
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ModelViewerScreen()),
+                );
+              },
+            ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class ModelViewerScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('3D Model Viewer'),
+      ),
+      body: Container(
+        color: Colors.white, // Set the background color to white
+        child: Center(
+          child: Cube(
+            onSceneCreated: (Scene scene) {
+              final object = Object(fileName: 'assets/models/model.obj');
+              object.scale.setValues(100.0, 100.0, 100.0);
+              scene.world.add(object);
+            },
+          ),
         ),
       ),
     );

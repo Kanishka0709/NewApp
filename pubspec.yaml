@@ -15,7 +15,7 @@ dependencies:
     sdk: flutter
   flutter_tts: ^3.6.3 # Text-to-Speech functionality
   speech_to_text: 7.0.0 # Voice Input functionality
-  
+  flutter_cube: 0.1.1
 
 dev_dependencies:
   flutter_test:
@@ -30,3 +30,6 @@ flutter:
   assets:
     - assets/welcome_background.jpg
     - assets/profile_background.jpg
+    - assets/models/model.obj
+    - assets/models/model.mtl
+    - assets/models/texture.png
