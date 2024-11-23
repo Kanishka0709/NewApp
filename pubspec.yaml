@@ -17,6 +17,10 @@ dependencies:
   speech_to_text: 7.0.0 # Voice Input functionality
   flutter_cube: 0.1.1
   shared_preferences: ^2.1.1
+  http: ^1.2.2
+  url_launcher: ^6.1.10
+  google_generative_ai: ^0.4.6
+  flutter_dotenv: ^5.0.2
 
 dev_dependencies:
   flutter_test:
@@ -34,3 +38,4 @@ flutter:
     - assets/models/model.obj
     - assets/models/model.mtl
     - assets/models/texture.png
+    - assets/.env
